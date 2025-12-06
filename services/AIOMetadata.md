@@ -1,4 +1,4 @@
-#### AIOMetadata
+# AIOMetadata
 1. Get TMDB API key following directions here: https://guides.viren070.me/stremio/faq#how-to-obtain-a-tmdb-api-key
 2. Get TVDB API key from https://www.thetvdb.com/api-information
 3. For AI-Powered Search, get Google Gemini API key from here: https://aistudio.google.com/app/u/6/api-keys

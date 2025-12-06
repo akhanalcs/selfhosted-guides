@@ -1,4 +1,5 @@
-## StremThru
+# StremThru
+
 Setting up StremThru proxy to work with AIOStreams and Torrentio on Oracle Cloud VM.
 
 1. Open `stremthru/.env`
