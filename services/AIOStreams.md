@@ -1,6 +1,7 @@
 ## AIOStreams
 
 If you're self hosting AIOStreams, it's recommended to also host StremThru because that way you can have fast StremThru Torz links on your own server.
+For setting up StremThru, see [StremThru.md](StremThru.md).
 
 1. Add aiostreams to the list in main `.env` file
    ```env
