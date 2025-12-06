@@ -42,3 +42,10 @@ This is necessary because Torrentio blocks StremThru running on the Oracle Cloud
       $ docker exec -it gluetun sh -c "wget -qO- http://ipinfo.io/ip; echo"
       <home-public-ip>
       ```
+
+## Pitfall
+1. Currently, gluetun doesn't support hostname on WireGuard endpoint, so if my home IP changes, the WireGuard connection will break.
+2. A feature request has been opened on their GitHub repo to support hostnames for WireGuard endpoints.
+   - https://github.com/qdm12/gluetun/issues/788
+3. Developer has committed a fix for it but not yet released.
+4. Follow the issue to know when it's released.
