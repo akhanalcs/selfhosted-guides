@@ -1,0 +1,18 @@
+services:
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr:latest
+    container_name: recyclarr
+    user: $PUID:$PGID
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-UTC}
+    volumes:
+      - /opt/docker/data/recyclarr:/config
+      - ./recyclarr.yml:/config/recyclarr.yml
+      - ./secrets.yml:/config/secrets.yml
+    depends_on:
+      radarr:
+        condition: service_healthy
+    profiles:
+      - all
+      - recyclarr

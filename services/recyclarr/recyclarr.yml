@@ -1,0 +1,41 @@
+radarr:
+  radarr_main:
+    delete_old_custom_formats: true
+    replace_existing_custom_formats: true
+    
+    # Seen in Radarr > Settings > Media Management > Movie Naming
+    # This can be retrieved by running `docker exec recyclarr recyclarr list naming radarr`.
+    # More info: https://recyclarr.dev/cli/list/
+    media_naming:
+      folder: plex-tmdb
+      movie:
+        rename: true
+        standard: plex-tmdb
+    
+    include:
+      # Seen in Radarr > Settings > Quality
+      # This can be retrieved by running `docker exec recyclarr recyclarr list qualities radarr`
+      - template: radarr-quality-definition-movie
+      
+      # HD Bluray + WEB (1080p)
+      # Seen in Radarr > Settings > Profiles
+      - template: radarr-quality-profile-hd-bluray-web
+      # Seen in Radarr > Settings > Custom Formats
+      # This can be retrieved by running `docker exec recyclarr recyclarr list custom-formats radarr`
+      - template: radarr-custom-formats-hd-bluray-web
+      
+      # UHD Bluray + WEB (4K)
+      - template: radarr-quality-profile-uhd-bluray-web
+      - template: radarr-custom-formats-uhd-bluray-web
+      
+      # Remux + WEB 1080p
+      - template: radarr-quality-profile-remux-web-1080p
+      - template: radarr-custom-formats-remux-web-1080p
+      
+      # Remux + WEB 2160p
+      - template: radarr-quality-profile-remux-web-2160p
+      - template: radarr-custom-formats-remux-web-2160p
+
+    # Optional section for modifying included templates
+    # Check out the quick setup templates: https://recyclarr.dev/guide/guide-configs 
+    # And how to merge them here 👇: https://recyclarr.dev/reference/config-examples#merge-single-instance
