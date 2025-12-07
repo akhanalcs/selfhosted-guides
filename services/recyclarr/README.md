@@ -107,7 +107,7 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
      - If you want to customize it further, check out
        - [Quick Setup Templates](https://recyclarr.dev/guide/guide-configs)
        - [Configuration Examples](https://recyclarr.dev/reference/config-examples) - It shows different scenarios and also shows how to combine multiple configs into a single file for a single instance.
-     - For 99% of users, this is more than enough.
+     - For 99% of users, this is enough.
 6. Copy the config files to your server
    - This includes copying this folder except the `screenshots` folder and the `README.md` file.
 7. Start Recyclaar
