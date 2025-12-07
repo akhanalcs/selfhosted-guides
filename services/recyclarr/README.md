@@ -20,9 +20,8 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
    ```bash
    $ sudo chown -R $(id -u):$(id -g) -R /opt/docker/data/recyclarr
    ```
-5. Populate the `recyclarr.yml` file.
-   - Most people get scared of apps with no UI, but it's really simple. 
-   - Just grab all the TRaSH quality profiles and custom formats, and quality definition from their [`config-templates` repo's `includes` folder](https://github.com/recyclarr/config-templates/tree/master/radarr/includes).
+5. Create an empty `.yml` file, and name it `recyclarr.yml`.
+   - Grab all the TRaSH quality profiles and custom formats, and quality definition from their [`config-templates` repo's `includes` folder](https://github.com/recyclarr/config-templates/tree/master/radarr/includes).
      - These are all the TRaSH quality profiles for 1080 and 4K: https://trash-guides.info/Radarr/radarr-setup-quality-profiles/#trash-quality-profiles
    - For visual, this is how their folders look like. This gives you a complete picture of what `include`s you need. You can check those files if you'd like.
      ```
@@ -61,7 +60,7 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
      │   ├── remux-web-2160p.yml
      │   └── uhd-bluray-web.yml
      ```
-   - Create an empty `.yml` file and populate the `include`s in `recyclarr.yml` like below. For the complete file, check out my [recyclarr.yml](recyclarr.yml).
+   - Populate the `include`s in `recyclarr.yml` like below. For the complete file, check out my [recyclarr.yml](recyclarr.yml) file.
      ```yml
          include:
            # Seen in Radarr > Settings > Quality
