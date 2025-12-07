@@ -61,7 +61,7 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
      │   ├── remux-web-2160p.yml
      │   └── uhd-bluray-web.yml
      ```
-   - Create an empty `.yml` file and populate the includes in `recyclarr.yml` like below. For the complete file, check out my [recyclarr.yml](recyclarr.yml).
+   - Create an empty `.yml` file and populate the `include`s in `recyclarr.yml` like below. For the complete file, check out my [recyclarr.yml](recyclarr.yml).
      ```yml
          include:
            # Seen in Radarr > Settings > Quality
