@@ -1,5 +1,6 @@
 # Recyclarr
 This is used to sync Media Naming, Quality Definitions (File Size), Custom Formats and Quality Profiles from TRaSH Guides to Radarr and Sonarr automatically on a schedule.
+This guide shows how to setup Recyclarr for Radarr only. Setting up for Sonarr is similar.
 
 - Some people run 3 instances of Radarr for different quality profiles (e.g., 1080p, 4K, Anime). 
 - But I like to keep it simple and just run 1 instance of Radarr with 1080p and 4K profiles combined.
@@ -8,17 +9,18 @@ This is used to sync Media Naming, Quality Definitions (File Size), Custom Forma
 Check out their [docs](https://recyclarr.dev/guide/features) for more info.
 
 ## Steps
-1. Add recyclaar to the list in main `.env` file
+1. Make sure you have Radarr running. If not, follow the [Radarr setup guide](../radarr/README.md).
+2. Add recyclaar to the list in main `.env` file
    ```env
    COMPOSE_PROFILES="required,...,recyclaar"
    ```
-2. Open `recyclaar/secrets.yml` file and set the following:
+3. Open `recyclaar/secrets.yml` file and set the following:
     - `radarr_main_api_key`: Get it from Radarr > Settings > General > Security > API Key
-3. Give ownership of recyclarr data folder to your user
+4. Give ownership of recyclarr data folder to your user
    ```bash
    $ sudo chown -R $(id -u):$(id -g) -R /opt/docker/data/recyclarr
    ```
-4. Populate the `recyclarr.yml` file.
+5. Populate the `recyclarr.yml` file.
    - Most people get scared of apps with no UI, but it's really simple. 
    - Just grab all the TRaSH quality profiles and custom formats, and quality definition from their [`config-templates` repo's `includes` folder](https://github.com/recyclarr/config-templates/tree/master/radarr/includes).
      - These are all the TRaSH quality profiles for 1080 and 4K: https://trash-guides.info/Radarr/radarr-setup-quality-profiles/#trash-quality-profiles
@@ -106,13 +108,13 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
        - [Quick Setup Templates](https://recyclarr.dev/guide/guide-configs)
        - [Configuration Examples](https://recyclarr.dev/reference/config-examples) - It shows different scenarios and also shows how to combine multiple configs into a single file for a single instance.
      - For 99% of users, this is more than enough.
-5. Copy the config files to your server
+6. Copy the config files to your server
    - This includes copying this folder except the `screenshots` folder and the `README.md` file.
-6. Start Recyclaar
+7. Start Recyclaar
    ```bash
    $ docker compose up -d recyclaar
    ```
-7. It runs on a schedule, but you can force it to run now
+8. It runs on a schedule, but you can force it to run now
    ```bash
    $ docker exec recyclarr recyclarr sync
    ```
@@ -130,7 +132,7 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
    [INF] Media naming has been updated
    [INF] Completed at 12/07/2025 00:03:44
    ```
-8. Check out Radarr now. You should see all the new Quality Definitions, Quality Profiles, Custom Formats and Media Naming applied by Recyclarr! 🎉
+9. Check out Radarr now. You should see all the new Quality Definitions, Quality Profiles, Custom Formats and Media Naming applied by Recyclarr! 🎉
    - Movie Naming (Settings > Media Management > Movie Naming)
      
      <img src="screenshots/rad-movie-naming.png" alt="image" width="2950"/>
@@ -143,4 +145,4 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
    - Custom Formats (Settings > Custom Formats)
    
      <img src="screenshots/rad-custom-formats.png" alt="image" width="3642"/>
- 
+10. You're done with Recyclarr setup! It will run every day to sync any updates from TRaSH Guides automatically.
