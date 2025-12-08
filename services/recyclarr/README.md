@@ -12,9 +12,9 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
 
 ## Steps
 1. Make sure you have Radarr running. If not, follow the [Radarr setup guide](../radarr/README.md).
-2. Add recyclaar to the list in main `.env` file
+2. Add recyclarr to the list in main `.env` file
    ```env
-   COMPOSE_PROFILES="required,...,recyclaar"
+   COMPOSE_PROFILES="required,...,recyclarr"
    ```
 3. Give ownership of recyclarr data folder to your user
    ```bash
@@ -23,7 +23,7 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
 4. Create `recyclaar/secrets.yml` file and set the following:
     - `radarr_main_base_url`: `http://radarr:7878`
     - `radarr_main_api_key`: Get it from Radarr > Settings > General > Security > API Key
-5. Create Configuration file on the folder where you are. For example, navigate to your `recyclarr` folder and run:
+5. Generate a starter configuration file in your current directory. For example, navigate to your `recyclarr` folder and run:
    ```bash
    $ docker run --rm -v "$(pwd):/config" ghcr.io/recyclarr/recyclarr config create
    ```
@@ -168,8 +168,8 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
      - [Quick Setup Templates](https://recyclarr.dev/guide/guide-configs)
      - [Configuration Examples](https://recyclarr.dev/reference/config-examples) - It shows different scenarios and also shows how to combine multiple configs into a single file for a single instance.
    - For 99% of users, this is enough.
-10. Copy the config files to your server
-    - This includes copying this `recyclarr` folder except the `screenshots` folder and the `README.md` file.
+10. If you created these files locally on your computer, upload them to your server now.
+    - If you decide to use my folder, copy the `recyclarr` folder except the `screenshots` folder and the `README.md` file.
 11. It runs on a schedule, but you can force it to run now
     ```bash
     $ docker exec recyclarr recyclarr sync
