@@ -23,11 +23,8 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
 4. Create `recyclaar/secrets.yml` file and set the following:
     - `radarr_main_base_url`: `http://radarr:7878`
     - `radarr_main_api_key`: Get it from Radarr > Settings > General > Security > API Key
-5. Generate a starter configuration file in your current directory. For example, navigate to your `recyclarr` folder and run:
-   ```bash
-   $ docker run --rm -v "$(pwd):/config" ghcr.io/recyclarr/recyclarr config create
-   ```
-   This creates `recyclaar/recyclarr.yml` file. It contains a lot of helpful info and a starter template for Sonarr. Remove the Sonarr starter template. For the complete file, check out my [recyclarr.yml](recyclarr.yml) file.
+5. Generate a starter configuration file in your current directory. For example, create an empty `recyclarr/recyclarr.yml` file.
+   For the complete file, check out my [recyclarr.yml](recyclarr.yml) file.
 
    Populate just the update options for now:
    ```yml
@@ -67,7 +64,7 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
    │ (...other formats removed for brevity)                                 │
    └───────────────┴────────────────────────────────────────────────────────┘
    ```
-   Based on this output, populate media naming in `recyclarr.yml` like below. I'm using Plex so I'm choosing `plex-tmdb` for both folder and movie naming. For your setup, choose whatever you like from the available options.
+   Based on this output, populate media naming in `recyclarr.yml` like below. I'm using Plex, so I'm choosing `plex-tmdb` for both folder and movie naming. For your setup, choose whatever you like from the available options.
    ```yml
     # Seen in Radarr > Settings > Media Management > Movie Naming
     media_naming:
@@ -81,11 +78,38 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
    $ docker compose up -d recyclaar
    ```
 8. Now let's populate the `recyclarr.yml` file with [TRaSH quality profiles for 1080 and 4K](https://trash-guides.info/Radarr/radarr-setup-quality-profiles/#trash-quality-profiles) using `include` templates.
-   - Run this command to see the IDs of all include templates
+   - Run this command to see the available templates that match TRaSH Guide quality profiles.
+     ```bash
+     $ docker exec recyclarr recyclarr config list templates
+     ```
+   
+     This will be the output. I've removed the language specific and SQP templates for brevity.
+     ```
+     ┌────────────────────────────┬────────────────────────────────────────┐
+     │ Sonarr                     │ Radarr                                 │
+     ├────────────────────────────┼────────────────────────────────────────┤
+     │ web-1080p-v4               │ hd-bluray-web    👈 Note this name     │
+     │ web-2160p-v4               │ uhd-bluray-web   👈 Note this name     │
+     │ anime-sonarr-v4            │ remux-web-1080p  👈 Note this name     │
+     │                            │ remux-web-2160p  👈 Note this name     │
+     │(...lang specific templates)│ anime-radarr                           │
+     │                            │                                        │
+     │                            │ (...lang specific templates)           │
+     │                            │ (...sqp-templates)                     │
+     └────────────────────────────┴────────────────────────────────────────┘
+     ```
+     Note the names of the templates that you want as you'll need them to find the corresponding `include` templates in the next step.
+     
+     If I only needed one of those templates, I would just generate config file in a very straightforward way using this command
+     ```bash
+     $ docker exec recyclarr recyclarr config create --template hd-bluray-web
+     ```
+     But since I need all of them in my 1 Radarr instance, I need to find the corresponding `include` templates for each of them.
+   - Run this command to see the IDs of all the include templates
      ```bash
      $ docker exec recyclarr recyclarr config list templates --includes
      ```
-   
+    
      This will be the output. I've only included the Radarr column and removed the language specific and SQP Ids for brevity.
      ```
      ┌──────────────────────────────────────────────────────────────┐
@@ -110,8 +134,9 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
      └──────────────────────────────────────────────────────────────┘
      ```
 
-     Here it is visualized in a tree structure to understand it better. 
-     We're going to include these `custom-formats`, `quality-definitions` and `quality-profiles` (except anime for now as I don't need it) in our `recyclarr.yml` file to do rest of our setup very quickly and easily.
+     Here it is visualized in a tree structure to see it better. 
+
+     We're going to "include" the `custom-formats` and `quality-profiles` of the templates we noted earlier in our `recyclarr.yml` file to do rest of our setup.
      ```
      radarr
      ├── includes
@@ -144,21 +169,21 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
      include:
        # Seen in Radarr > Settings > Quality
        - template: radarr-quality-definition-movie
-       
+        
        # HD Bluray + WEB (1080p)
        # Seen in Radarr > Settings > Profiles
        - template: radarr-quality-profile-hd-bluray-web
        # Seen in Radarr > Settings > Custom Formats
        - template: radarr-custom-formats-hd-bluray-web
-       
+        
        # UHD Bluray + WEB (4K)
        - template: radarr-quality-profile-uhd-bluray-web
        - template: radarr-custom-formats-uhd-bluray-web
-       
+        
        # Remux + WEB 1080p
        - template: radarr-quality-profile-remux-web-1080p
        - template: radarr-custom-formats-remux-web-1080p
-       
+        
        # Remux + WEB 2160p
        - template: radarr-quality-profile-remux-web-2160p
        - template: radarr-custom-formats-remux-web-2160p
