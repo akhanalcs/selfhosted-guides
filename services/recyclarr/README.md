@@ -5,7 +5,7 @@ It ensures your library quality standards are always up to date without manual t
 This guide focuses on setting up Recyclarr for a single Radarr instance (combining 1080p and 4K profiles), which is sufficient for majority of users.
 
 - Some people run 3 instances of Radarr for different quality profiles (e.g., 1080p, 4K, Anime). 
-- But I like to keep it simple and just run 1 instance of Radarr with 1080p and 4K profiles combined.
+- But I like to keep it simple and just run 1 instance of Radarr with 1080p and 4K profiles.
 - I don't watch Anime, so I don't need a separate Radarr instance for that. If I were to watch Anime movies, I would just add another instance of Radarr and use Recyclarr to sync the Anime profiles there.
 
 Check out their [docs](https://recyclarr.dev/guide/features) for more info.
