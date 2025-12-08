@@ -14,14 +14,12 @@ radarr:
     
     include:
       # Seen in Radarr > Settings > Quality
-      # This can be retrieved by running `docker exec recyclarr recyclarr list qualities radarr`
       - template: radarr-quality-definition-movie
       
       # HD Bluray + WEB (1080p)
       # Seen in Radarr > Settings > Profiles
       - template: radarr-quality-profile-hd-bluray-web
       # Seen in Radarr > Settings > Custom Formats
-      # This can be retrieved by running `docker exec recyclarr recyclarr list custom-formats radarr`
       - template: radarr-custom-formats-hd-bluray-web
       
       # UHD Bluray + WEB (4K)
