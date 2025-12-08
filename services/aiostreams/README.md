@@ -1,7 +1,7 @@
 # AIOStreams
 
 If you're self hosting AIOStreams, it's recommended to also host StremThru because that way you can have fast StremThru Torz links on your own server.
-For setting up StremThru, see [StremThru.md](StremThru.md).
+For setting up StremThru, see [StremThru.md](../stremthru/README.md).
 
 1. Add aiostreams to the list in main `.env` file
    ```env
@@ -9,7 +9,7 @@ For setting up StremThru, see [StremThru.md](StremThru.md).
    ```
 2. Open `aiostreams/.env` file and set the following. Detailed descriptions of each variable can be found in the `.env` file itself.
     - `ADDON_NAME`: `My Name's AIOStreams`
-    - `ADDON_ID`: `aiostreams.ashkhanal.com`
+    - `ADDON_ID`: `aiostreams.mydomain.com`
     - `BASE_URL`: `https://aiostreams.mydomain.com`
     - `SECRET_KEY`: `<64-character hex string>`
     - `ADDON_PASSWORD`: `<my password for aiostreams>`
