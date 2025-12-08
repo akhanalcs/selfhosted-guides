@@ -170,7 +170,7 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
    - For 99% of users, this is enough.
 10. If you created these files locally on your computer, upload them to your server now.
     - If you decide to use my folder, copy the `recyclarr` folder except the `screenshots` folder and the `README.md` file.
-11. It runs on a schedule, but you can force it to run now
+11. It syncs on a schedule, but you can force it to sync now
     ```bash
     $ docker exec recyclarr recyclarr sync
     ```
