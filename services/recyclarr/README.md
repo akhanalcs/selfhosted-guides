@@ -36,11 +36,10 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
 6. Populate media naming in `recyclarr.yml`. 
    What to populate here is found by running the CLI command below:
    ```bash
-   $ docker exec recyclarr recyclarr list naming radarr
+   $ docker compose run --rm recyclarr list naming radarr
    ```
    This gives the following output:
    ```
-   $ docker exec recyclarr recyclarr list naming radarr
    Media Naming Formats (Preview)
    
    Movie Folder Format
