@@ -20,10 +20,10 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
    ```bash
    $ sudo chown -R $(id -u):$(id -g) -R /opt/docker/data/recyclarr
    ```
-4. Create `recyclaar/secrets.yml` file and set the following:
+4. Create `recyclarr/secrets.yml` file and set the following:
     - `radarr_main_base_url`: `http://radarr:7878`
     - `radarr_main_api_key`: Get it from Radarr > Settings > General > Security > API Key
-5. Generate a starter configuration file in your current directory. For example, create an empty `recyclarr/recyclarr.yml` file.
+5. Create an empty `.yml` file: `recyclarr/recyclarr.yml` that we will populate in the next steps.
    For the complete file, check out my [recyclarr.yml](recyclarr.yml) file.
 
    Populate just the update options for now:
@@ -73,9 +73,9 @@ Check out their [docs](https://recyclarr.dev/guide/features) for more info.
         rename: true
         standard: plex-tmdb
    ```
-7. With `recyclaar/compose.yaml`, `recyclaar/secrets.yml` and `recyclaar/recyclarr.yml` in place, start Recyclaar in Cron mode:
+7. With `recyclarr/compose.yaml`, `recyclaar/secrets.yml` and `recyclaar/recyclarr.yml` in place, start Recyclaar in Cron mode:
    ```bash
-   $ docker compose up -d recyclaar
+   $ docker compose up -d recyclarr
    ```
 8. Now let's populate the `recyclarr.yml` file with [TRaSH quality profiles for 1080 and 4K](https://trash-guides.info/Radarr/radarr-setup-quality-profiles/#trash-quality-profiles) using `include` templates.
    - Run this command to see the available templates that match TRaSH Guide quality profiles.
