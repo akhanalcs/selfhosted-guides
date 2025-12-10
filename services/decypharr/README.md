@@ -5,19 +5,24 @@
    COMPOSE_PROFILES="required,...,decypharr"
    ```
 2. Open `decypharr/config.json` file and set the following:
-    - For RealDebrid integration
-        - `api_key`: <rd-api-key-here>
-        - `torrents_refresh_interval`: `60s` (was `15s` by default)
-    - Copy the whole real debrid section again for TorBox integration
-        - `name`: `torbox`
-        - `api_key`: <tb-api-key-here>
-        - `folder`: `/mnt/remote/torbox/__all__/`
-        - `torrents_refresh_interval`: `300s`
-        - Change the `torrents_refresh_interval` to `60s`
-    - For `qbittorrent` settings
-        - `refresh_interval`: `60` (was `5` by default)
-    - For `rclone` settings
-        - Set rclone.uid and rclone.gid to the value of PUID and PGID from the main .env respectively
+   - For RealDebrid integration
+      - `api_key`: <rd-api-key-here>
+      - `torrents_refresh_interval`: `60s` (was `15s` by default)
+   - Copy the whole real debrid section again for TorBox integration
+      - `name`: `torbox`
+      - `api_key`: <tb-api-key-here>
+      - `folder`: `/mnt/remote/torbox/__all__/`
+      - `torrents_refresh_interval`: `300s`(was `15s` by default)
+      - `download_links_refresh_interval`: `10m` (was `40m` by default)
+   - For `arrs` integration
+      - `radarr`
+         - `token`: <radarr-api-key-here>
+      - `sonarr`
+         - `token`: <sonarr-api-key-here>
+   - For `qbittorrent` settings
+      - `refresh_interval`: `60` (was `5` by default)
+   - For `rclone` settings
+      - Set rclone.uid and rclone.gid to the value of PUID and PGID from the main .env respectively
 3. Create mount folders in the server
    ```bash
    $ sudo mkdir -p /mnt/remote
