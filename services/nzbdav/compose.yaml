@@ -1,0 +1,71 @@
+services:
+  nzbdav: 
+    image: nzbdav/nzbdav:alpha
+    container_name: nzbdav
+    restart: unless-stopped
+    healthcheck:
+      test: curl -f http://localhost:3000/health || exit 1
+      # Check every 1 minute
+      interval: 1m
+      # If it fails 3 times (3 minutes total), restart it
+      retries: 3
+      # Give it 5 seconds to boot up
+      start_period: 5s
+      # If it doesn't answer in 5 seconds, assume it's frozen
+      timeout: 5s
+    expose:
+      - 3000
+    environment:
+      - "PUID=${PUID}"
+      - "PGID=${PGID}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nzbdav.rule=Host(`${NZBDAV_HOSTNAME?}`)"
+      - "traefik.http.routers.nzbdav.entrypoints=websecure"
+      - "traefik.http.routers.nzbdav.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.nzbdav.middlewares=authelia@docker"
+    volumes:
+      - ./config:/config
+      - /mnt:/mnt
+    profiles:
+      - nzbdav
+      - all
+  
+  nzbdav_rclone:
+    image: rclone/rclone:latest
+    container_name: nzbdav_rclone
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      # Host Path : Container Path : Propagation
+      - /mnt:/mnt:rshared
+      - ./rclone.conf:/config/rclone/rclone.conf
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    devices:
+      - /dev/fuse:/dev/fuse:rwm
+    depends_on:
+      nzbdav:
+        condition: service_healthy
+        restart: true
+    command: >
+      mount nzbdav: /mnt/remote/nzbdav
+        --uid=${PUID}
+        --gid=${PGID}
+        --allow-other
+        --links
+        --use-cookies
+        --vfs-cache-mode=full
+        --vfs-cache-max-size=40G
+        --vfs-cache-max-age=24h
+        --buffer-size=0M
+        --vfs-read-ahead=512M
+        --dir-cache-time=20s
+    profiles:
+      - nzbdav
+      - all
