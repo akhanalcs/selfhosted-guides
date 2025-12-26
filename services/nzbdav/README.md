@@ -1,6 +1,6 @@
 # Comprehensive NzbDav Setup Guide
 
-This guide is an opinionated, step-by-step walkthrough to setting up NzbDav for maximum performance ("infinite library" style) with Radarr, Sonarr, and Stremio.
+This guide is an opinionated, step-by-step walkthrough to setting up NzbDav for maximum performance ("infinite library" style) with Radarr, Sonarr, Plex and Stremio.
 
 ## Phase 1: Prerequisites
 
