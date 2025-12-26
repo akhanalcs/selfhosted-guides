@@ -18,45 +18,49 @@ Add these to Prowlarr and sync them to your Radarr/Sonarr instances.
 
 We start with a basic NzbDav container.
 
-### 1. `docker-compose.yml` (Part 1)
+### 1. `compose.yml` (Part 1)
 
-Create the file structure like below:
 ```
 your-root-docker-folder/
 ├── apps
 │   ├── nzbdav
-│   │   └── docker-compose.yml   👈 Create this file now
+│   │   └── compose.yml  👈 You'll be updating this file using below code snippet
 │   └── ...
 ```
 
-Update `PUID`, `PGID`, `TZ`, and volume paths as needed.
-You can get your PUID/PGID by running `id` in your terminal.
-
 ```yaml
 services:
-  nzbdav:
-    image: nzbdav/nzbdav:alpha
-    container_name: nzbdav
-    restart: unless-stopped
-    healthcheck:
-      test: curl -f http://localhost:3000/health || exit 1
-      # Check every 1 minute
-      interval: 1m
-      # If it fails 3 times (3 minutes total), restart it
-      retries: 3
-      # Give it 5 seconds to boot up
-      start_period: 5s
-      # If it doesn't answer in 5 seconds, assume it's frozen
-      timeout: 5s
-    ports:
-      - "3000:3000"
-    environment:
-      # Change these IDs to match your Docker user that you got from above
-      - PUID=1000
-      - PGID=1000
-    volumes:
-      - ./config:/config
-      - /mnt:/mnt
+   nzbdav:
+      image: nzbdav/nzbdav:alpha
+      container_name: nzbdav
+      restart: unless-stopped
+      healthcheck:
+         test: curl -f http://localhost:3000/health || exit 1
+         # Check every 1 minute
+         interval: 1m
+         # If it fails 3 times (3 minutes total), restart it
+         retries: 3
+         # Give it 5 seconds to boot up
+         start_period: 5s
+         # If it doesn't answer in 5 seconds, assume it's frozen
+         timeout: 5s
+      expose:
+         - 3000
+      environment:
+         - "PUID=${PUID}"
+         - "PGID=${PGID}"
+      labels:
+         - "traefik.enable=true"
+         - "traefik.http.routers.nzbdav.rule=Host(`${NZBDAV_HOSTNAME?}`)"
+         - "traefik.http.routers.nzbdav.entrypoints=websecure"
+         - "traefik.http.routers.nzbdav.tls.certresolver=letsencrypt"
+         - "traefik.http.routers.nzbdav.middlewares=authelia@docker"
+      volumes:
+         - ./config:/config
+         - /mnt:/mnt
+      profiles:
+         - nzbdav
+         - all
 ```
 
 Run the container
@@ -66,7 +70,7 @@ docker compose up -d
 
 ### 2. Core Configuration
 
-Navigate to `http://your-server-ip:3000`.
+Navigate to `https://nzbdav.yourdomain.com`.
 
 **A. Create Admin Account**
 
@@ -132,7 +136,7 @@ sudo chown -R $(id -u):$(id -g) -R /mnt/remote/nzbdav # Give ownership of the fo
 your-root-docker-folder/
 ├── apps
 │   ├── nzbdav
-│   │   ├── docker-compose.yml
+│   │   ├── compose.yml
 │   │   └── rclone.conf          👈 Create this empty file now
 │   └── ...
 ```
@@ -151,52 +155,50 @@ pass = <PASTE_OBSCURED_PASSWORD_HERE_WITHOUT_ANGLE_BRACKETS>
 
 ### 3. Update `docker-compose.yml`
 
-Add the Rclone sidecar service to your existing `apps/nzbdav/docker-compose.yml`. This uses specific flags optimized for streaming.
-
-Update `PUID`, `PGID`, `TZ`, and volume paths as needed.
-You can get your PUID/PGID by running `id` in your terminal.
+Add the Rclone sidecar service to your existing `apps/nzbdav/compose.yml`. This uses specific flags optimized for streaming.
 
 ```yaml
 nzbdav_rclone:
-  image: rclone/rclone:latest
-  container_name: nzbdav_rclone
-  restart: unless-stopped
-  environment:
-    # Change these IDs to match your Docker user that you got from above
-    - PUID=1000
-    - PGID=1000
-    # Set the time zone to match your location
-    - TZ=America/New_York
-  volumes:
-    # Host Path : Container Path : Propagation
-    - /mnt:/mnt:rshared
-    - ./rclone.conf:/config/rclone/rclone.conf
-  cap_add:
-    - SYS_ADMIN
-  security_opt:
-    - apparmor:unconfined
-  devices:
-    - /dev/fuse:/dev/fuse:rwm
-  depends_on:
-    nzbdav:
-      condition: service_healthy
-      restart: true
-  # Optimized mounting flags for streaming
-  # 0M buffer size reduces double-caching (File System + RAM)
-  # 512M read-ahead ensures smooth playback
-  command: >
-    mount nzbdav: /mnt/remote/nzbdav
-      --uid=1000
-      --gid=1000
-      --allow-other
-      --links
-      --use-cookies
-      --vfs-cache-mode=full
-      --vfs-cache-max-size=20G
-      --vfs-cache-max-age=24h
-      --buffer-size=0M
-      --vfs-read-ahead=512M
-      --dir-cache-time=20s
+   image: rclone/rclone:latest
+   container_name: nzbdav_rclone
+   restart: unless-stopped
+   environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+   volumes:
+      # Host Path : Container Path : Propagation
+      - /mnt:/mnt:rshared
+      - ./rclone.conf:/config/rclone/rclone.conf
+   cap_add:
+      - SYS_ADMIN
+   security_opt:
+      - apparmor:unconfined
+   devices:
+      - /dev/fuse:/dev/fuse:rwm
+   depends_on:
+      nzbdav:
+         condition: service_healthy
+         restart: true
+   # Optimized mounting flags for streaming
+   # 0M buffer size reduces double-caching (File System + RAM)
+   # 512M read-ahead ensures smooth playback
+   command: >
+      mount nzbdav: /mnt/remote/nzbdav
+        --uid=${PUID}
+        --gid=${PGID}
+        --allow-other
+        --links
+        --use-cookies
+        --vfs-cache-mode=full
+        --vfs-cache-max-size=40G
+        --vfs-cache-max-age=24h
+        --buffer-size=0M
+        --vfs-read-ahead=512M
+        --dir-cache-time=20s
+   profiles:
+      - nzbdav
+      - all
 ```
 
 Start `nzbdav_rclone`
