@@ -1,6 +1,28 @@
 # Comprehensive NzbDav Setup Guide
 
-This guide is an opinionated, step-by-step walkthrough to setting up NzbDav for maximum performance ("infinite library" style) with Radarr, Sonarr, Plex and Stremio.
+This guide is an opinionated, step-by-step walkthrough to setting up NzbDav for maximum performance ("infinite library" style) with Radarr, Sonarr, Plex/Jellyfin and Stremio.
+
+## How the "Infinite Library" Works
+Before configuring, it helps to understand the flow:
+
+### Path A: The Automation Flow (Radarr/Sonarr + Plex/Jellyfin)
+1. **Radarr** sends an `.nzb` file to NzbDav (acting as a download client) to "download".
+2. **NzbDav** mounts the nzb onto the webdav without actually downloading it.
+3. **NzbDav** tells Radarr the "download" is finished and points to a folder of **Symlinks** at `/mnt/remote/nzbdav/completed-symlinks`.
+   * The **Symlinks** always point to the `/mnt/remote/nzbdav/.ids` folder which contains the streamable content.
+4. **Radarr** imports these Symlinks into your library. For eg: `/mnt/media/movies`.
+5. **Plex** reads the Symlink -> Rclone Mount -> WebDAV Stream -> Usenet Provider.
+   * **RClone** will make the nzb contents available to your filesystem by streaming, without using any storage space on your server.
+
+### Path B: The On-Demand Flow (Stremio)
+1. **Stremio (via AIOStreams)** searches your indexers using the `Newznab` addon and finds a release.
+2. **AIOStreams** sends the `.nzb` to NzbDav's API to mount it.
+3. **NzbDav** mounts the file instantly via WebDAV.
+4. **AIOStreams** generates a streamable URL.
+   * *Note: If using the recommended Proxy setup, this URL points to AIOStreams, which tunnels the traffic from NzbDav.*
+5. **Stremio** plays the video from that URL (bypassing Rclone/Symlinks entirely).
+
+---
 
 ## Phase 1: Prerequisites
 
@@ -31,7 +53,7 @@ your-root-docker-folder/
 ```yaml
 services:
    nzbdav:
-      image: nzbdav/nzbdav:alpha
+      image: nzbdav/nzbdav:latest
       container_name: nzbdav
       restart: unless-stopped
       healthcheck:
@@ -90,11 +112,11 @@ Set your username and password.
 * **Set WebDAV Password:** Create a password (you will need this for Rclone).
 * **Enforce Read-Only:** Uncheck it if you'd like to delete files from terminal. Otherwise, leave it checked.
 
-### 3. Speed Tuning (Crucial)
+### 3. Speed Tuning (Optional)
 
-You must find the optimal **Max Download Connections** for your network (`Settings > WebDAV > Max Download Connections`).
+_Note: The default Max Download Connections setting of `15` works perfectly for most users (handling ~1Gbps). You only need to touch this if you are experiencing speed issues._
 
-`Too high = high CPU usage, no speed gain`.
+You can find the optimal **Max Download Connections** for your network (`Settings > WebDAV > Max Download Connections`) using the steps below:
 
 1. **Baseline Test:** Run this on your server to check raw bandwidth.
    ```bash
@@ -153,12 +175,9 @@ user = admin
 pass = <PASTE_OBSCURED_PASSWORD_HERE_WITHOUT_ANGLE_BRACKETS>
 ```
 
-### 3. Update `docker-compose.yml`
+### 3. Update `compose.yml`
 
-Add the Rclone sidecar service to your existing `apps/nzbdav/compose.yml`. This uses specific flags optimized for streaming.
-Do not add any other flags because this already contains all the necessary flags required for optimal streaming performance.
-
-Remember: `unnecessary flags = pitfalls`.
+Add the Rclone sidecar service to your existing `apps/nzbdav/compose.yml`. 
 
 ```yaml
 nzbdav_rclone:
@@ -184,7 +203,7 @@ nzbdav_rclone:
          condition: service_healthy
          restart: true
    # Optimized mounting flags for streaming
-   # 0M buffer size reduces double-caching (File System + RAM)
+   # 0M buffer size prevents double-caching (File System + RAM)
    # 512M read-ahead ensures smooth playback
    command: >
       mount nzbdav: /mnt/remote/nzbdav
@@ -220,6 +239,21 @@ ls -la /mnt/remote/nzbdav
 # Should show: .ids, completed-symlinks, content, nzbs
 ```
 
+#### Understanding the Flags
+* **`--links`**: **Crucial**. This allows `*.rclonelink` files within the webdav to be translated to symlinks when mounted onto your filesystem.
+  > *Note: Requires Rclone v1.70.3+.*
+* **`--use-cookies`**: **Performance**. Without this, Rclone re-authenticates on every single request, causing massive slowdowns.
+* **`--allow-other`**: **Permissions**. Ensures other containers (like Radarr/Plex) can see the mounted files.
+* **`--vfs-cache-mode=full`**: **Performance**. Enables the full VFS cache, which is required for seeking and proper file handling.
+* **`--buffer-size 0M`**: **Stability**. Prevents double-caching (RAM + Disk).
+* **`--vfs-read-ahead=512M`**: **Smooth Playback**. Buffers 512MB into VFS disk cache ahead of the current position to handle high-bitrate spikes without stuttering.
+* **`--vfs-cache-max-size=20G`**: **Disk Management**. Limits the local disk space used by the cache. Adjust based on your available storage.
+* **`--dir-cache-time=20s`**: **Responsiveness**. Keeps the directory cache short so new downloads/links appear quickly in the mount.
+
+These flags are optimized for streaming.
+
+Remember: `unnecessary flags = potential pitfalls`.
+
 #### Rclone flags reference
 * https://forum.rclone.org/t/whats-the-suitable-value-to-set-for-buffer-size-with-vfs-read-ahead/39971/4
 
@@ -251,15 +285,16 @@ Go to NzbDav `Settings` > `Radarr/Sonarr`.
 
    Configure these rules to automatically handle failed or bad releases, keeping your queue clean without manual intervention.
 
-    * **Remove, Blocklist, and Search:**
+    * **Do Nothing:**
         * Found matching series via grab history, but release was matched to series by ID. Automatic import is not possible.
         * Found matching movie via grab history, but release was matched to movie by ID. Manual Import required.
         * Episode was not found in the grabbed release.
         * Episode was unexpected considering the folder name.
-        * No files found are eligible for import.
-        * No audio tracks detected.
         * Invalid season or episode.
         * Unable to determine if file is a sample.
+    * **Remove, Blocklist, and Search:**
+        * No files found are eligible for import.
+        * No audio tracks detected.
         * Sample.
     * **Remove and Blocklist:**
         * Not an upgrade for existing episode file(s).
@@ -284,6 +319,8 @@ Go to NzbDav `Settings` > `Radarr/Sonarr`.
 ## Phase 5: Usenet Streaming in Stremio (via AIOStreams)
 
 You can stream your Usenet content directly in Stremio using [AIOStreams](https://github.com/Viren070/AIOStreams).
+
+For more info, check out their [Usenet Wiki](https://github.com/Viren070/AIOStreams/wiki/Usenet).
 
 ### 1. Configure NzbDav Service
 
