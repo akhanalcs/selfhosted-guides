@@ -156,6 +156,9 @@ pass = <PASTE_OBSCURED_PASSWORD_HERE_WITHOUT_ANGLE_BRACKETS>
 ### 3. Update `docker-compose.yml`
 
 Add the Rclone sidecar service to your existing `apps/nzbdav/compose.yml`. This uses specific flags optimized for streaming.
+Do not add any other flags because this already contains all the necessary flags required for optimal streaming performance.
+
+Remember: `unnecessary flags = pitfalls`.
 
 ```yaml
 nzbdav_rclone:
